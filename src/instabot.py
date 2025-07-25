@@ -87,8 +87,10 @@ class Instabot(object):
     wanted_set = set(wanted_followers)
     unwanted = set()
     keep = set()
-    
+
     user_id = self.get_user_id(username)
+    following = self.get_following(user_id)
+
     batch_size = 50
     has_next_page = True
     scroll_hash = ''
@@ -98,7 +100,7 @@ class Instabot(object):
       followers, has_next_page, scroll_hash = self.get_followers_data(followers_url)
 
       for follower in followers:
-        if follower.name in wanted_set:
+        if follower.name in wanted_set or follower.name in following:
           keep.add(follower.name)
         elif len(unwanted) < remove_count:
           unwanted.add(follower)
@@ -161,6 +163,43 @@ class Instabot(object):
     after = data['data']['user']['edge_followed_by']['page_info']['end_cursor']
 
     return (followers, has_next_page, after)
+
+  def get_following_url(self, user_id, batch_size=50, scroll_hash=''):
+    base_url = 'https://www.instagram.com/graphql/query/?query_hash=d04b0a864b4b54837c0d870b0e77e076&variables='
+    variables_template = '{"id":"$user_id","include_reel":false,"fetch_mutual":false,"first":$first,"after":"$after"}'
+    variables = Template(variables_template).substitute(user_id=user_id, first=batch_size, after=scroll_hash)
+    return base_url + variables
+
+  def get_following_data(self, url):
+    response = self.session.get(url, False)
+    data = json.loads(response.text)
+
+    following = list()
+    for node in data['data']['user']['edge_follow']['edges']:
+      name = node['node']['username']
+      following.append(name)
+
+    has_next_page = data['data']['user']['edge_follow']['page_info']['has_next_page']
+    after = data['data']['user']['edge_follow']['page_info']['end_cursor']
+
+    return (following, has_next_page, after)
+
+  def get_following(self, user_id):
+    following_set = set()
+    batch_size = 50
+    has_next_page = True
+    scroll_hash = ''
+
+    while has_next_page:
+      following_url = self.get_following_url(user_id, batch_size, scroll_hash)
+      users, has_next_page, scroll_hash = self.get_following_data(following_url)
+
+      for user in users:
+        following_set.add(user)
+
+      time.sleep(2)
+
+    return following_set
 
   def confirm_data(self):
     if not self.config['confirm_data']:

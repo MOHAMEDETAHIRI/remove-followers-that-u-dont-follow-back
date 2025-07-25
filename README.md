@@ -1,7 +1,7 @@
 Remove Followers InstaBot
 ========
 
-This Instagram bot automates the process of removing followers that you no longer want. The input is a list of usernames of the followers you would like to keep. This bot will slowly remove unwanted followers, respecting Instagram's restrictive policy for automated behaviors. It aims to behave as a normal user would.
+This Instagram bot automatically removes followers that you are **not following back**. It can also keep a custom list of followers that you never want to remove. The bot will slowly remove unwanted followers, respecting Instagram's restrictive policy for automated behaviors. It aims to behave as a normal user would.
 
 Removing followers is not officially supported by Instagram's API. This bot uses Instagram's unofficial Web API.
 
@@ -25,7 +25,7 @@ KEEP_FOLLOWERS: [ 'bobmarley', 'snoopdogg', 'infectedmushroom' ]
 ```
 
 - `CREDENTIALS`: Your login info.
-- `TOTAL_LIKES`: The number of followers you wish to be removed in one run of the bot. My suggestion is to not choose a value greater than 1000, as Instagram may suspect your activities and delete your account. Run this bot every day with this config until you clear your account from unwanted followers.
+- `REMOVE_FOLLOWERS_COUNT`: The number of followers you wish to remove in one run of the bot. My suggestion is to not choose a value greater than 1000, as Instagram may suspect your activities and delete your account. Run this bot every day with this config until you clear your account from unwanted followers.
 - `KEEP_FOLLOWERS`: The username of followers that you would like to keep.
 
 Then run:
